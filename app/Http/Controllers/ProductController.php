@@ -101,4 +101,11 @@ class ProductController extends Controller
 
         return $product ? $this->sendResponse([], 'Product Deleted Successfully!!', 200) : $this->sendError('Product not found.');
     }
+
+    public function search($key)
+    {
+        $products = Product::with('category')->where('name','like',"%$key%")->get();
+
+        return $products ? $this->sendResponse($products, 'Product retrieved Successfully!', 200) : $this->sendError('Product not found.');
+    }
 }
