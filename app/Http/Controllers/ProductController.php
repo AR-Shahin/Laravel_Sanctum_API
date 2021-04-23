@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Http\Requests\ProductRequest;
+use App\Http\Resources\ProductResource;
 
 class ProductController extends Controller
 {
@@ -15,9 +16,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return response([
-            'data' => Product::with('category')->latest()->get()
-        ]);
+        $products = Product::with('category')->latest()->get();
+        return $this->sendResponse($products, 'Products retrieved successfully.');
     }
 
     /**
@@ -39,7 +39,8 @@ class ProductController extends Controller
     public function store(ProductRequest $request)
     {
         $data =  $request->validated();
-        return Product::create($data);
+        $product = Product::create($data);
+        return $this->sendResponse($product,'Product Created Successfully!',201);
     }
 
     /**
@@ -50,9 +51,9 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        return response([
-            'data' => Product::find($id)
-        ]);
+        $product = Product::with('category')->find($id);
+
+        return $product ? $this->sendResponse($product, 'Product retrieved Successfully!', 200) : $this->sendError('Product not found.');
     }
 
     /**
@@ -75,13 +76,13 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ProductRequest $request, $id)
     {
-        Product::find($id)->update($request->all());
-        return response([
-            'status' => 200,
-            'message' => 'Data Updated Successfully!'
-        ]);
+        $product = Product::find($id);
+        if($product){
+            $product->update($request->validated());
+        }
+        return $product ? $this->sendResponse($product, 'Product Updated Successfully!!', 200) : $this->sendError('Product not found.');
     }
 
     /**
@@ -92,10 +93,12 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        Product::find($id)->delete();
-        return response([
-            'status' => 200,
-            'message' => 'Data Delete Successfully!'
-        ]);
+
+        $product = Product::find($id);
+        if ($product) {
+            $product->delete();
+        }
+
+        return $product ? $this->sendResponse([], 'Product Deleted Successfully!!', 200) : $this->sendError('Product not found.');
     }
 }

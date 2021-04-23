@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
+use App\Http\Resources\ProductResource;
 
 /*
 |--------------------------------------------------------------------------
